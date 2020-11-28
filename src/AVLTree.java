@@ -34,7 +34,7 @@ public class AVLTree {
      */
     public String search(int k) {
         IAVLNode temp = this.root;
-        while (temp != null) {
+        while (temp.isRealNode()) {
             if (temp.getKey() < k) {
                 temp = temp.getRight();
             } else if (temp.getKey() > k) {
@@ -56,27 +56,81 @@ public class AVLTree {
      * returns -1 if an item with key k already exists in the tree.
      */
     public int insert(int k, String i) {
-        return 42;    // to be replaced by student code
+        if (this.root == null) {
+            this.root = new AVLNode(k, i);
+        }
+        IAVLNode temp = this.root;
+        IAVLNode tempPar = temp;
+        while (temp != null) {
+            tempPar = temp;
+            if (temp.getKey() < k) {
+                temp = temp.getRight();
+            } else if (temp.getKey() > k) {
+                temp = temp.getLeft();
+            } else {
+                return -1;
+            }
+        }
+        IAVLNode newNode = new AVLNode(k, i);
+        if (tempPar.getKey() > k)
+            tempPar.setLeft(newNode);
+        else
+            tempPar.setRight(newNode);
+        int count = 0;
+        while (isFixNeeded(newNode.getParent())) {
+            newNode = newNode.getParent();
+            if (isPromotionNeeded(newNode)){
+                count = count + promote(newNode);
+            }
+            else{
+                count = count + rotate(newNode);
+
+            }
+        }
+        return count;
     }
 
-    private void leftRotation(IAVLNode node){
+    private boolean isFixNeeded(IAVLNode node) {
+        if(node == null){
+            return false;
+        }
+        int rightDiff = (node.getHeight() - node.getRight().getHeight());
+        int leftDiff = (node.getHeight() - node.getLeft().getHeight());
+        return !((rightDiff >= 1) && (rightDiff <= 2) && (leftDiff >= 1) && (leftDiff <= 2) && (leftDiff + rightDiff < 4));
+    }
+
+    private void leftRightRotation(IAVLNode node) {
+        leftRotation(node, 1);
+        rightRotation(node);
+    }
+
+    private void rightLeftRotation(IAVLNode node) {
+        rightRotation(node);
+        leftRotation(node, 1);
+    }
+
+    private void leftRotation(IAVLNode node, int doubleAddition) {
         IAVLNode tempParent = node.getParent();
-        if(tempParent == null)
+        if (tempParent == null)
             return;
         node.setParent(tempParent.getParent());
         tempParent.setParent(node);
         tempParent.setRight(node.getLeft());
         node.setLeft(tempParent);
+        node.setHeight(node.getHeight() + doubleAddition);
+        tempParent.setHeight(tempParent.getHeight() - 1);
+
     }
 
-    private void rightRotation(IAVLNode node){
+    private void rightRotation(IAVLNode node) {
         IAVLNode tempParent = node.getParent();
-        if(tempParent == null)
+        if (tempParent == null)
             return;
         node.setParent(tempParent.getParent());
         tempParent.setParent(node);
         tempParent.setLeft(node.getRight());
         node.setRight(tempParent);
+        tempParent.setHeight(tempParent.getHeight() - 1);
     }
 
     /**
@@ -243,16 +297,40 @@ public class AVLTree {
         private IAVLNode right;
         private int height;
         private IAVLNode parent;
+        private int[] rD;
+        private IAVLNode virNode = new AVLNode();
 
-        public AVLNode(int key, String val) {
-            this.key = key;
-            this.val = val;
-            this.left = null;
-            this.right = null;
+        public AVLNode() {
+            this.key = -1;
             this.height = -1;
             this.parent = null;
         }
 
+        public AVLNode(int key, String val) {
+            this.key = key;
+            this.val = val;
+            this.left = virNode;
+            this.right = virNode;
+            this.height = 0;
+            this.parent = null;
+            this.rD = new int[2];
+        }
+
+        public int getLeftChildRankDiff() {
+            return this.rD[0];
+        }
+
+        public int getRightChildRankDiff() {
+            return this.rD[1];
+        }
+
+        public void setLeftChildRankDiff(int diff) {
+            this.rD[0] = diff;
+        }
+
+        public void setRightChildRankDiff(int diff) {
+            this.rD[1] = diff;
+        }
 
         public int getKey() {
             return key;
