@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 /**
  * AVLTree
  * <p>
@@ -11,10 +13,9 @@ public class AVLTree {
     private IAVLNode root;
     private int size;
 
+
     public AVLTree() {
         this.size = 0;
-        this.min = new AVLNode(Integer.MAX_VALUE, null);
-        this.max = new AVLNode(Integer.MIN_VALUE, null);
     }
 
     /**
@@ -58,10 +59,14 @@ public class AVLTree {
     public int insert(int k, String i) {
         if (this.root == null) {
             this.root = new AVLNode(k, i);
+            this.min = this.root;
+            this.max = this.root;
+            this.size++;
+            return 0;
         }
         IAVLNode temp = this.root;
         IAVLNode tempPar = temp;
-        while (temp != null) {
+        while (temp.isRealNode()) {
             tempPar = temp;
             if (temp.getKey() < k) {
                 temp = temp.getRight();
@@ -76,27 +81,60 @@ public class AVLTree {
             tempPar.setLeft(newNode);
         else
             tempPar.setRight(newNode);
+        newNode.setParent(tempPar);
+        if(newNode.getKey() > this.max.getKey())
+            this.max = newNode;
+        if(newNode.getKey() < this.min.getKey())
+            this.min = newNode;
+        this.size++;
         int count = 0;
         while (isFixNeeded(newNode.getParent())) {
             newNode = newNode.getParent();
-            if (isPromotionNeeded(newNode)){
+            if (isPromotionNeeded(newNode)) {
                 count = count + promote(newNode);
-            }
-            else{
+            } else {
                 count = count + rotate(newNode);
-
             }
         }
         return count;
     }
 
     private boolean isFixNeeded(IAVLNode node) {
-        if(node == null){
+        if (node == null) {
             return false;
         }
         int rightDiff = (node.getHeight() - node.getRight().getHeight());
         int leftDiff = (node.getHeight() - node.getLeft().getHeight());
         return !((rightDiff >= 1) && (rightDiff <= 2) && (leftDiff >= 1) && (leftDiff <= 2) && (leftDiff + rightDiff < 4));
+    }
+
+    public boolean isPromotionNeeded(IAVLNode node) {
+        return 2 * node.getHeight() - node.getRight().getHeight() - node.getLeft().getHeight() == 1;
+    }
+
+    public int promote(IAVLNode node) {
+        node.setHeight(node.getHeight() + 1);
+        return 1;
+    }
+
+    public int rotate(IAVLNode node) {
+        if (node.getHeight() - node.getLeft().getHeight() == 0) {
+            if (node.getLeft().getHeight() - node.getLeft().getLeft().getHeight() == 1) {
+                rightRotation(node.getLeft());
+                return 1;
+            } else {
+                leftRightRotation(node.getLeft().getRight());
+                return 2;
+            }
+        } else {
+            if (node.getRight().getHeight() - node.getRight().getRight().getHeight() == 1) {
+                leftRotation(node.getRight(), 0);
+                return 1;
+            } else {
+                rightLeftRotation(node.getRight().getLeft());
+                return 2;
+            }
+        }
     }
 
     private void leftRightRotation(IAVLNode node) {
@@ -113,7 +151,16 @@ public class AVLTree {
         IAVLNode tempParent = node.getParent();
         if (tempParent == null)
             return;
-        node.setParent(tempParent.getParent());
+        if (tempParent.getParent() != null) {
+            node.setParent(tempParent.getParent());
+            boolean isLeftChild = tempParent.getParent().getLeft() == tempParent;
+            if (isLeftChild)
+                node.getParent().setLeft(node);
+            else
+                node.getParent().setRight(node);
+        } else {
+            this.root = node;
+        }
         tempParent.setParent(node);
         tempParent.setRight(node.getLeft());
         node.setLeft(tempParent);
@@ -126,6 +173,16 @@ public class AVLTree {
         IAVLNode tempParent = node.getParent();
         if (tempParent == null)
             return;
+        if (tempParent.getParent() != null) {
+            node.setParent(tempParent.getParent());
+            boolean isLeftChild = tempParent.getParent().getLeft() == tempParent;
+            if (isLeftChild)
+                node.getParent().setLeft(node);
+            else
+                node.getParent().setRight(node);
+        } else {
+            this.root = node;
+        }
         node.setParent(tempParent.getParent());
         tempParent.setParent(node);
         tempParent.setLeft(node.getRight());
@@ -174,7 +231,7 @@ public class AVLTree {
      */
     public int[] keysToArray() {
         int[] arr = new int[this.size];
-        infoToArrayRec(this.root, null, arr, new Integer(0), true);
+        infoToArrayRec(this.root, null, arr, new int[] {0}, true);
         return arr;
     }
 
@@ -187,20 +244,20 @@ public class AVLTree {
      */
     public String[] infoToArray() {
         String[] arr = new String[this.size];
-        infoToArrayRec(this.root, arr, null, new Integer(0), false);
+        infoToArrayRec(this.root, arr, null, new int[] {0}, false);
         return arr;
     }
 
-    private void infoToArrayRec(IAVLNode node, String[] inOrder, int[] inOrderKeys, Integer index, boolean isKeys) {
-        if (node.getLeft() != null) {
+    private void infoToArrayRec(IAVLNode node, String[] inOrder, int[] inOrderKeys, int[] index, boolean isKeys) {
+        if (node.getLeft().isRealNode()) {
             infoToArrayRec(node.getLeft(), inOrder, inOrderKeys, index, isKeys);
         }
         if (isKeys)
-            inOrderKeys[index] = node.getKey();
+            inOrderKeys[index[0]] = node.getKey();
         else
-            inOrder[index] = node.getValue();
-        index += 1;
-        if (node.getRight() != null) {
+            inOrder[index[0]] = node.getValue();
+        index[0] += 1;
+        if (node.getRight().isRealNode()) {
             infoToArrayRec(node.getRight(), inOrder, inOrderKeys, index, isKeys);
         }
     }
@@ -290,7 +347,7 @@ public class AVLTree {
      * This class can and must be modified.
      * (It must implement IAVLNode)
      */
-    public class AVLNode implements IAVLNode {
+    public static class AVLNode implements IAVLNode {
         private int key;
         private String val;
         private IAVLNode left;
@@ -298,7 +355,7 @@ public class AVLTree {
         private int height;
         private IAVLNode parent;
         private int[] rD;
-        private IAVLNode virNode = new AVLNode();
+        private static IAVLNode virNode = new AVLNode();
 
         public AVLNode() {
             this.key = -1;
@@ -313,7 +370,6 @@ public class AVLTree {
             this.right = virNode;
             this.height = 0;
             this.parent = null;
-            this.rD = new int[2];
         }
 
         public int getLeftChildRankDiff() {
