@@ -1,3 +1,4 @@
+
 import java.util.Arrays;
 
 /**
@@ -13,7 +14,13 @@ public class AVLTree {
     private IAVLNode root;
     private int size;
 
-
+    public static void main(String[] args) {
+        AVLTree tree = new AVLTree();
+        tree.insert(3,null);
+        tree.insert(7,null);
+        tree.insert(5,null);
+        System.out.println(Arrays.toString(tree.keysToArray()));
+    }
     public AVLTree() {
         this.size = 0;
     }
@@ -151,16 +158,7 @@ public class AVLTree {
         IAVLNode tempParent = node.getParent();
         if (tempParent == null)
             return;
-        if (tempParent.getParent() != null) {
-            node.setParent(tempParent.getParent());
-            boolean isLeftChild = tempParent.getParent().getLeft() == tempParent;
-            if (isLeftChild)
-                node.getParent().setLeft(node);
-            else
-                node.getParent().setRight(node);
-        } else {
-            this.root = node;
-        }
+        updateRootForRotation(node,tempParent);
         tempParent.setParent(node);
         tempParent.setRight(node.getLeft());
         node.setLeft(tempParent);
@@ -173,6 +171,15 @@ public class AVLTree {
         IAVLNode tempParent = node.getParent();
         if (tempParent == null)
             return;
+        updateRootForRotation(node,tempParent);
+        node.setParent(tempParent.getParent());
+        tempParent.setParent(node);
+        tempParent.setLeft(node.getRight());
+        node.setRight(tempParent);
+        tempParent.setHeight(tempParent.getHeight() - 1);
+    }
+
+    private void updateRootForRotation(IAVLNode node, IAVLNode tempParent) {
         if (tempParent.getParent() != null) {
             node.setParent(tempParent.getParent());
             boolean isLeftChild = tempParent.getParent().getLeft() == tempParent;
@@ -183,13 +190,7 @@ public class AVLTree {
         } else {
             this.root = node;
         }
-        node.setParent(tempParent.getParent());
-        tempParent.setParent(node);
-        tempParent.setLeft(node.getRight());
-        node.setRight(tempParent);
-        tempParent.setHeight(tempParent.getHeight() - 1);
     }
-
     /**
      * public int delete(int k)
      * <p>
