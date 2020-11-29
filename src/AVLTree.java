@@ -14,13 +14,7 @@ public class AVLTree {
     private IAVLNode root;
     private int size;
 
-    public static void main(String[] args) {
-        AVLTree tree = new AVLTree();
-        tree.insert(3,null);
-        tree.insert(7,null);
-        tree.insert(5,null);
-        System.out.println(Arrays.toString(tree.keysToArray()));
-    }
+
     public AVLTree() {
         this.size = 0;
     }
