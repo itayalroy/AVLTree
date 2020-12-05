@@ -1,6 +1,3 @@
-
-import java.util.Arrays;
-
 /**
  * AVLTree
  * <p>
@@ -14,6 +11,17 @@ public class AVLTree {
     private IAVLNode root;
     private int size;
 
+
+    public static void main(String[] args) {
+        AVLTree tree = new AVLTree();
+        tree.insert(6,null);
+        tree.insert(3,null);
+        tree.insert(10,null);
+        tree.insert(8,null);
+        tree.insert(13,null);
+        tree.delete(10);
+        System.out.println(tree.root.getRight().getLeft().getKey());
+    }
 
     public AVLTree() {
         this.size = 0;
@@ -48,6 +56,19 @@ public class AVLTree {
         return null;
     }
 
+    public IAVLNode searchNode(int k) {
+        IAVLNode temp = this.root;
+        while (temp.isRealNode()) {
+            if (temp.getKey() < k) {
+                temp = temp.getRight();
+            } else if (temp.getKey() > k) {
+                temp = temp.getLeft();
+            } else {
+                return temp;
+            }
+        }
+        return null;
+    }
     /**
      * public int insert(int k, String i)
      * <p>
@@ -89,9 +110,9 @@ public class AVLTree {
             this.min = newNode;
         this.size++;
         int count = 0;
-        while (isFixNeeded(newNode.getParent())) {
+        while (isFixNeededInsert(newNode.getParent())) {
             newNode = newNode.getParent();
-            if (isPromotionNeeded(newNode)) {
+            if (isPromotionNeededInsert(newNode)) {
                 count = count + promote(newNode);
             } else {
                 count = count + rotate(newNode);
@@ -100,7 +121,7 @@ public class AVLTree {
         return count;
     }
 
-    private boolean isFixNeeded(IAVLNode node) {
+    private boolean isFixNeededInsert(IAVLNode node) {
         if (node == null) {
             return false;
         }
@@ -109,7 +130,7 @@ public class AVLTree {
         return !((rightDiff >= 1) && (rightDiff <= 2) && (leftDiff >= 1) && (leftDiff <= 2) && (leftDiff + rightDiff < 4));
     }
 
-    public boolean isPromotionNeeded(IAVLNode node) {
+    public boolean isPromotionNeededInsert(IAVLNode node) {
         return 2 * node.getHeight() - node.getRight().getHeight() - node.getLeft().getHeight() == 1;
     }
 
@@ -194,8 +215,61 @@ public class AVLTree {
      * demotion/rotation - counted as one rebalnce operation, double-rotation is counted as 2.
      * returns -1 if an item with key k was not found in the tree.
      */
+
+    public void removeUnaryOrLeaf(IAVLNode nodeToDelete) {
+        if(nodeToDelete.getRight().isRealNode()) { // unary with right child
+            if(nodeToDelete.getParent().isRealNode()) {
+                nodeToDelete.getParent().setRight(nodeToDelete.getRight());
+                nodeToDelete.getRight().setParent(nodeToDelete.getParent());
+            } else {
+                this.root = nodeToDelete.getRight();
+                this.root.setParent(null);
+            }
+        } else if(nodeToDelete.getLeft().isRealNode()){ // unary with left child
+            if(nodeToDelete.getParent().isRealNode()) {
+                nodeToDelete.getParent().setLeft(nodeToDelete.getLeft());
+                nodeToDelete.getLeft().setParent(nodeToDelete.getParent());
+            } else {
+                this.root = nodeToDelete.getLeft();
+                this.root.setParent(null);
+            }
+        } else { //leaf
+            nodeToDelete.setParent(null);
+        }
+    }
+
+    public void removeBinary(IAVLNode nodeToDelete) {
+        IAVLNode succ = successor(nodeToDelete);
+        removeUnaryOrLeaf(succ);
+        if(nodeToDelete.getParent().isRealNode()) {
+            if(nodeToDelete.getParent().getRight() == nodeToDelete) {
+                nodeToDelete.getParent().setRight(succ);
+                succ.setParent(nodeToDelete.getParent());
+            } else {
+                nodeToDelete.getParent().setLeft(succ);
+                succ.setParent(nodeToDelete.getParent());
+            }
+        }
+        if(nodeToDelete.getRight().isRealNode()) {
+            nodeToDelete.getRight().setParent(succ);
+            succ.setRight(nodeToDelete.getRight());
+        }
+        if(nodeToDelete.getLeft().isRealNode()) {
+            nodeToDelete.getLeft().setParent(succ);
+            succ.setLeft(nodeToDelete.getLeft());
+        }
+    }
     public int delete(int k) {
-        return 42;    // to be replaced by student code
+        IAVLNode nodeToDelete = searchNode(k);
+        if(nodeToDelete == null) return -1;
+        int stepCount = 0;
+            if(nodeToDelete.getRight().isRealNode() && nodeToDelete.getLeft().isRealNode()) { // if binary
+                removeBinary(nodeToDelete);
+            } else { // unary or leaf
+                removeUnaryOrLeaf(nodeToDelete);
+            }
+            
+        return stepCount;
     }
 
     /**
@@ -280,6 +354,47 @@ public class AVLTree {
     public IAVLNode getRoot() {
         return this.root;
     }
+
+    public IAVLNode successor(IAVLNode node) {
+        if(node == max) {
+            return null;
+        }
+        if(node.getRight().isRealNode()) {
+            IAVLNode curr = node.getRight();
+            while(curr.getLeft().isRealNode()) {
+                curr = curr.getLeft();
+            }
+            return curr;
+        } else {
+            IAVLNode curr = node;
+            while(node.getParent().getRight() == node) {
+                curr = curr.getParent();
+            }
+            return curr.getParent();
+        }
+    }
+
+    public IAVLNode predecessor(IAVLNode node) {
+        if(node == min) return null;
+        else {
+            if(node.getLeft().isRealNode()) {
+                IAVLNode curr = node.getLeft();
+                while(curr.getRight().isRealNode()) {
+                    curr = curr.getRight();
+                }
+                return curr;
+            }
+            else {
+                IAVLNode curr = node;
+                while(node.getParent().getLeft() == node) {
+                    curr = node.getParent();
+                }
+                return node.getParent();
+            }
+        }
+    }
+
+
 
     /**
      * public string split(int x)
