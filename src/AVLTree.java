@@ -12,16 +12,7 @@ public class AVLTree {
     private int size;
 
 
-    public static void main(String[] args) {
-        AVLTree tree = new AVLTree();
-        tree.insert(6,null);
-        tree.insert(3,null);
-        tree.insert(10,null);
-        tree.insert(8,null);
-        tree.insert(13,null);
-        tree.delete(10);
-        System.out.println(tree.root.getRight().getLeft().getKey());
-    }
+
 
     public AVLTree() {
         this.size = 0;
@@ -268,7 +259,7 @@ public class AVLTree {
             } else { // unary or leaf
                 removeUnaryOrLeaf(nodeToDelete);
             }
-            
+
         return stepCount;
     }
 
