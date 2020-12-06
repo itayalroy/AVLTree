@@ -119,7 +119,7 @@ public class TreePrinter {
             printNode(tree.getRoot());
             System.out.println(tree.size());
             System.out.println(tree.getRoot().getHeight());
-            tree.delete(61);
+
             tree.delete(60);
             printNode(tree.getRoot());
             System.out.println(tree.size());
