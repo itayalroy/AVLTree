@@ -1,3 +1,5 @@
+import sun.reflect.generics.tree.Tree;
+
 import java.util.Arrays;
 
 /**
@@ -188,7 +190,6 @@ public class AVLTree {
             else //node is 1-2 or 2-1 node
                 tempParent.setHeight(tempParent.getHeight() - 1);
         }
-
     }
 
     private void rightRotation(IAVLNode node, int isDeletion) {
@@ -271,8 +272,10 @@ public class AVLTree {
             IAVLNode continueNode = nodeToDelete.getParent();
             if(isLeftChild(nodeToDelete)) {
                 nodeToDelete.getParent().setLeft(AVLNode.virNode);
-                nodeToDelete.setParent(null);
+            } else {
+                nodeToDelete.getParent().setRight(AVLNode.virNode);
             }
+            nodeToDelete.setParent(null);
             return continueNode;
         }
     }
@@ -291,7 +294,7 @@ public class AVLTree {
     public IAVLNode removeBinary(IAVLNode nodeToDelete) {
         IAVLNode succ = successor(nodeToDelete);
         boolean isLeftChild = isLeftChild(nodeToDelete);
-        removeUnaryOrLeaf(succ);
+        IAVLNode nodeToContinue = removeUnaryOrLeaf(succ);
         succ.setHeight(nodeToDelete.getHeight());
         if (nodeToDelete.getParent() != null) {
             if (!isLeftChild) {
@@ -313,7 +316,7 @@ public class AVLTree {
             nodeToDelete.getLeft().setParent(succ);
             succ.setLeft(nodeToDelete.getLeft());
         }
-        return succ;
+        return nodeToContinue;
     }
 
     public int delete(int k) {
@@ -334,6 +337,7 @@ public class AVLTree {
             startRebalanceNode = removeUnaryOrLeaf(nodeToDelete);
         }
         while (isFixNeeded(startRebalanceNode)) {
+            TreePrinter.printNode(this.getRoot());
             if (isDemoteNeeded(startRebalanceNode)) {
                 stepCount += demote(startRebalanceNode);
                 startRebalanceNode = startRebalanceNode.getParent();
