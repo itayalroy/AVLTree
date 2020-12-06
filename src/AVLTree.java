@@ -11,16 +11,7 @@ public class AVLTree {
     private IAVLNode root;
     private int size;
 
-    public static void main(String[] args) {
-        AVLTree tree = new AVLTree();
-        tree.insert(6,null);
-        tree.insert(3,null);
-        tree.insert(10,null);
-        tree.insert(8,null);
-        tree.insert(13,null);
-        tree.delete(10);
-        System.out.println(tree.root.getLeft().getHeight());
-    }
+
 
     public AVLTree() {
         this.size = 0;
@@ -111,7 +102,7 @@ public class AVLTree {
         int count = 0;
         while (isFixNeededInsert(newNode.getParent())) {
             newNode = newNode.getParent();
-            if (isPromotionNeededInsert(newNode)) {
+            if (isPromotionNeeded(newNode)) {
                 count = count + promote(newNode);
             } else {
                 count = count + rotate(newNode);
@@ -129,7 +120,7 @@ public class AVLTree {
         return !((rightDiff >= 1) && (rightDiff <= 2) && (leftDiff >= 1) && (leftDiff <= 2) && (leftDiff + rightDiff < 4));
     }
 
-    public boolean isPromotionNeededInsert(IAVLNode node) {
+    public boolean isPromotionNeeded(IAVLNode node) {
         return 2 * node.getHeight() - node.getRight().getHeight() - node.getLeft().getHeight() == 1;
     }
 
@@ -278,12 +269,26 @@ public class AVLTree {
         if(nodeToDelete == null) return -1;
         int stepCount = 0;
         IAVLNode startRebalanceNode;
-            if(nodeToDelete.getRight().isRealNode() && nodeToDelete.getLeft().isRealNode()) { // if binary
-                startRebalanceNode = removeBinary(nodeToDelete);
-            } else { // unary or leaf
-                startRebalanceNode = removeUnaryOrLeaf(nodeToDelete);
-            }
+        if(nodeToDelete.getRight().isRealNode() && nodeToDelete.getLeft().isRealNode()) { // if binary
+            startRebalanceNode = removeBinary(nodeToDelete);
+        } else { // unary or leaf
+            startRebalanceNode = removeUnaryOrLeaf(nodeToDelete);
+        }
+        while(isFixNeededDeletion(startRebalanceNode)) {
+            if(isDemoteNeeded(startRebalanceNode))
+                stepCount += demote(startRebalanceNode);
+            else
+                stepCount += deletionRotate(startRebalanceNode);
+        }
         return stepCount;
+    }
+
+    public boolean isFixNeededDeletion(IAVLNode node) {
+        return false;
+    }
+
+    public boolean isDemoteNeeded(IAVLNode node) {
+        return false;
     }
 
     /**
