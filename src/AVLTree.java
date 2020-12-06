@@ -1,6 +1,3 @@
-
-import java.util.Arrays;
-
 /**
  * AVLTree
  * <p>
@@ -13,7 +10,6 @@ public class AVLTree {
     private IAVLNode max;
     private IAVLNode root;
     private int size;
-
 
     public AVLTree() {
         this.size = 0;
@@ -48,6 +44,19 @@ public class AVLTree {
         return null;
     }
 
+    public IAVLNode searchNode(int k) {
+        IAVLNode temp = this.root;
+        while (temp.isRealNode()) {
+            if (temp.getKey() < k) {
+                temp = temp.getRight();
+            } else if (temp.getKey() > k) {
+                temp = temp.getLeft();
+            } else {
+                return temp;
+            }
+        }
+        return null;
+    }
     /**
      * public int insert(int k, String i)
      * <p>
@@ -89,18 +98,18 @@ public class AVLTree {
             this.min = newNode;
         this.size++;
         int count = 0;
-        while (isFixNeeded(newNode.getParent())) {
+        while (isFixNeededInsert(newNode.getParent())) {
             newNode = newNode.getParent();
             if (isPromotionNeeded(newNode)) {
                 count = count + promote(newNode);
             } else {
-                count = count + rotate(newNode);
+                count = count + rotateInsertion(newNode);
             }
         }
         return count;
     }
 
-    private boolean isFixNeeded(IAVLNode node) {
+    private boolean isFixNeededInsert(IAVLNode node) {
         if (node == null) {
             return false;
         }
@@ -118,7 +127,7 @@ public class AVLTree {
         return 1;
     }
 
-    public int rotate(IAVLNode node) {
+    public int rotateInsertion(IAVLNode node) {
         if (node.getHeight() - node.getLeft().getHeight() == 0) {
             if (node.getLeft().getHeight() - node.getLeft().getLeft().getHeight() == 1) {
                 rightRotation(node.getLeft());
@@ -194,9 +203,102 @@ public class AVLTree {
      * demotion/rotation - counted as one rebalnce operation, double-rotation is counted as 2.
      * returns -1 if an item with key k was not found in the tree.
      */
-    public int delete(int k) {
-        return 42;    // to be replaced by student code
+
+    /*
+    @pre nodeToDelete is not a binary node
+    @post $ret is where we want to start rebalancing, if null then we deleted the root- no need to rebalance
+     */
+    public IAVLNode removeUnaryOrLeaf(IAVLNode nodeToDelete) {
+        if(nodeToDelete.getRight().isRealNode()) { // unary with right child
+            if(nodeToDelete.getParent() != null) {
+                nodeToDelete.getParent().setRight(nodeToDelete.getRight());
+                nodeToDelete.getRight().setParent(nodeToDelete.getParent());
+                return nodeToDelete.getParent();
+            } else {
+                this.root = nodeToDelete.getRight();
+                this.root.setParent(null);
+                return null;
+            }
+        } else if(nodeToDelete.getLeft().isRealNode()){ // unary with left child
+            if(nodeToDelete.getParent()!= null) {
+                nodeToDelete.getParent().setLeft(nodeToDelete.getLeft());
+                nodeToDelete.getLeft().setParent(nodeToDelete.getParent());
+                return nodeToDelete.getParent();
+            } else {
+                this.root = nodeToDelete.getLeft();
+                this.root.setParent(null);
+                return null;
+            }
+        } else { //leaf
+            IAVLNode continueNode = nodeToDelete.getParent();
+            nodeToDelete.setParent(null);
+            return continueNode;
+        }
     }
+    /*
+    @pre nodeToDelete is a binary node
+    @post $ret is where we want to start rebalancing, if null then we deleted the root- no need to rebalance
+     */
+    public IAVLNode removeBinary(IAVLNode nodeToDelete) {
+        IAVLNode succ = successor(nodeToDelete);
+        IAVLNode startRebalanceNode = removeUnaryOrLeaf(succ);
+        succ.setHeight(nodeToDelete.getHeight());
+        if(nodeToDelete.getParent() != null) {
+            if(nodeToDelete.getParent().getRight() == nodeToDelete) {
+                nodeToDelete.getParent().setRight(succ);
+                succ.setParent(nodeToDelete.getParent());
+            } else {
+                nodeToDelete.getParent().setLeft(succ);
+                succ.setParent(nodeToDelete.getParent());
+            }
+        } else {
+            this.root = succ;
+            succ.setParent(null);
+        }
+        if(nodeToDelete.getRight().isRealNode()) {
+            nodeToDelete.getRight().setParent(succ);
+            succ.setRight(nodeToDelete.getRight());
+        }
+        if(nodeToDelete.getLeft().isRealNode()) {
+            nodeToDelete.getLeft().setParent(succ);
+            succ.setLeft(nodeToDelete.getLeft());
+        }
+        return startRebalanceNode;
+    }
+    public int delete(int k) {
+        IAVLNode nodeToDelete = searchNode(k);
+        if(nodeToDelete == null) return -1;
+        int stepCount = 0;
+        IAVLNode startRebalanceNode;
+        if(nodeToDelete.getRight().isRealNode() && nodeToDelete.getLeft().isRealNode()) { // if binary
+            startRebalanceNode = removeBinary(nodeToDelete);
+        } else { // unary or leaf
+            startRebalanceNode = removeUnaryOrLeaf(nodeToDelete);
+        }
+       while(isFixNeededDeletion(startRebalanceNode)) {
+            if(isDemoteNeeded(startRebalanceNode))
+                stepCount += demote(startRebalanceNode);
+            else
+                stepCount += deletionRotate(startRebalanceNode);
+        }
+        return stepCount;
+    }
+
+    public boolean isFixNeededDeletion(IAVLNode node) {
+        return false;
+    }
+
+    public boolean isDemoteNeeded(IAVLNode node) {
+        return false;
+    }
+    public int deletionRotate(IAVLNode node) {
+        return 42;
+    }
+
+    public int demote(IAVLNode node) {
+        return 1;
+    }
+
 
     /**
      * public String min()
@@ -280,6 +382,47 @@ public class AVLTree {
     public IAVLNode getRoot() {
         return this.root;
     }
+
+    public IAVLNode successor(IAVLNode node) {
+        if(node == max) {
+            return null;
+        }
+        if(node.getRight().isRealNode()) {
+            IAVLNode curr = node.getRight();
+            while(curr.getLeft().isRealNode()) {
+                curr = curr.getLeft();
+            }
+            return curr;
+        } else {
+            IAVLNode curr = node;
+            while(node.getParent().getRight() == node) {
+                curr = curr.getParent();
+            }
+            return curr.getParent();
+        }
+    }
+
+    public IAVLNode predecessor(IAVLNode node) {
+        if(node == min) return null;
+        else {
+            if(node.getLeft().isRealNode()) {
+                IAVLNode curr = node.getLeft();
+                while(curr.getRight().isRealNode()) {
+                    curr = curr.getRight();
+                }
+                return curr;
+            }
+            else {
+                IAVLNode curr = node;
+                while(node.getParent().getLeft() == node) {
+                    curr = node.getParent();
+                }
+                return node.getParent();
+            }
+        }
+    }
+
+
 
     /**
      * public string split(int x)
