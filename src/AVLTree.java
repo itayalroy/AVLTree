@@ -11,8 +11,6 @@ public class AVLTree {
     private IAVLNode root;
     private int size;
 
-
-
     public AVLTree() {
         this.size = 0;
     }
@@ -105,7 +103,7 @@ public class AVLTree {
             if (isPromotionNeeded(newNode)) {
                 count = count + promote(newNode);
             } else {
-                count = count + rotate(newNode);
+                count = count + rotateInsertion(newNode);
             }
         }
         return count;
@@ -129,7 +127,7 @@ public class AVLTree {
         return 1;
     }
 
-    public int rotate(IAVLNode node) {
+    public int rotateInsertion(IAVLNode node) {
         if (node.getHeight() - node.getLeft().getHeight() == 0) {
             if (node.getLeft().getHeight() - node.getLeft().getLeft().getHeight() == 1) {
                 rightRotation(node.getLeft());
@@ -274,7 +272,7 @@ public class AVLTree {
         } else { // unary or leaf
             startRebalanceNode = removeUnaryOrLeaf(nodeToDelete);
         }
-        while(isFixNeededDeletion(startRebalanceNode)) {
+       while(isFixNeededDeletion(startRebalanceNode)) {
             if(isDemoteNeeded(startRebalanceNode))
                 stepCount += demote(startRebalanceNode);
             else
@@ -290,6 +288,14 @@ public class AVLTree {
     public boolean isDemoteNeeded(IAVLNode node) {
         return false;
     }
+    public int deletionRotate(IAVLNode node) {
+        return 42;
+    }
+
+    public int demote(IAVLNode node) {
+        return 1;
+    }
+
 
     /**
      * public String min()
