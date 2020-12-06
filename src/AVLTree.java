@@ -29,6 +29,19 @@ public class AVLTree {
     }
 
     /**
+     * private void setTreeAs(AVLTree t)
+     * set this instance fields as AVLTree t fields.
+     * precondition: t != null.
+     * postcondition: None.
+     */
+    private void setTreeAs(AVLTree t) {
+        this.size = t.size;
+        this.min = t.min;
+        this.max = t.max;
+        this.root = t.root;
+    }
+
+    /**
      * public String search(int k)
      * <p>
      * returns the info of an item with key k if it exists in the tree
@@ -521,7 +534,104 @@ public class AVLTree {
      * postcondition: none
      */
     public int join(IAVLNode x, AVLTree t) {
+        /**
+         * Idea - Check on who is the higher tree - this tree or t, then go down to the relevant rank in the relevant tree,
+         * then join properly - and rebalance if needed from x and up.
+         * Cases - this tree is deeper than t and keys() > x,t or keys() < x,t
+         *         t tree is deeper than this tree and keys() < x,t or keys() > x,t
+         *         also take note that t can be empty.
+         */
+        if (t.empty() || this.empty()) {
+            AVLTree notEmptyTree = getNotEmptyTree(t, this);
+            int complexity = notEmptyTree.insert(x.getKey(), x.getValue());
+            setTreeAs(notEmptyTree);
+            return complexity;
+        }
+        AVLTree lower = orderTreesByRootVal(t, this)[0];
+        AVLTree higher = orderTreesByRootVal(t, this)[1];
+        if (lower.getTreeRank() > higher.getTreeRank()) {
+            return joinLowerDeeper(x, lower, higher);
+        } else if (lower.getTreeRank() < higher.getTreeRank()) {
+            return joinHigherDeeper(x, lower, higher);
+        } else {
+
+        }
         return 0;
+    }
+
+    /**
+     * private static joinLowerDeeper(IAVLNode x, AVLTree lower, AVLTree higher)
+     * joins 2 AVLTrees with the node x between them - giving that lower is a deeper tree then higher
+     * Returns the complexity of the operation (|lower.rank - higher.rank| + 1)
+     * The modified tree will be lower
+     * precondition: keys(x,higher) > keys(lower), lower.getTreeRank() > higher.getTreeRank() > -1.
+     * postcondition: None.
+     */
+    private static int joinLowerDeeper(IAVLNode x, AVLTree lower, AVLTree higher){
+        int higherRank = higher.getTreeRank();
+        IAVLNode tempNode = lower.getRoot();
+        while(tempNode.getHeight() > higherRank){
+            tempNode = tempNode.getRight();
+        }
+        x.setLeft(tempNode);
+        x.setRight(higher.getRoot());
+        x.setParent(tempNode.getParent());
+        x.setHeight(higherRank + 1);
+        tempNode.setParent(x);
+        higher.getRoot().setParent(x);
+        int count = 0;
+        IAVLNode currNode = x;
+        while (lower.isFixNeededInsert(currNode.getParent())) {
+            currNode = currNode.getParent();
+            if (lower.isPromotionNeeded(currNode)) {
+                count = count + lower.promote(currNode);
+            } else {
+                count = count + lower.rotateInsertion(currNode);
+            }
+        }
+    }
+
+    /**
+     * private static joinHigherDeeper(IAVLNode x, AVLTree lower, AVLTree higher)
+     * joins 2 AVLTrees with the node x between them - giving that lower is a deeper tree then higher
+     * Returns the complexity of the operation (|higher.rank - lower.rank| + 1)
+     * The modified tree will be higher
+     * precondition: keys(x,higher) > keys(lower), higher.getTreeRank() > lower.getTreeRank() < -1.
+     * postcondition: None.
+     */
+    private static int joinHigherDeeper(IAVLNode x, AVLTree lower, AVLTree higher){
+
+    }
+
+    /**
+     * private static getNotEmptyTree(AVLTree t, AVLTree s)
+     * returns a non-empty tree if exists else returns s.
+     * precondition: None.
+     * postcondition: None.
+     */
+    private static AVLTree getNotEmptyTree(AVLTree t, AVLTree s) {
+        if (t.empty()) {
+            return s;
+        }
+        return t;
+    }
+
+    /**
+     * private static orderTreesByRootVal(AVLTree t, AVLTree s)
+     * Checks which root key is larger.
+     * Returns array that in the first item is the tree with the smaller root, and the second is the other tree.
+     * precondition: (t.empty() and s.empty()) == false.
+     * postcondition: None.
+     */
+    private static AVLTree[] orderTreesByRootVal(AVLTree t, AVLTree s) {
+        if (t.root.getKey() > s.root.getKey()) {
+            return new AVLTree[]{s, t};
+        }
+        return new AVLTree[]{t, s};
+    }
+
+    private int getTreeRank() {
+        return this.root.getHeight();
     }
 
     /**
@@ -623,7 +733,6 @@ public class AVLTree {
         }
 
         public IAVLNode getRight() {
-
             return this.right;
         }
 
