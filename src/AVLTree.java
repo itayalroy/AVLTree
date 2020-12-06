@@ -210,7 +210,7 @@ public class AVLTree {
      */
     public IAVLNode removeUnaryOrLeaf(IAVLNode nodeToDelete) {
         if(nodeToDelete.getRight().isRealNode()) { // unary with right child
-            if(nodeToDelete.getParent().isRealNode()) {
+            if(nodeToDelete.getParent() != null) {
                 nodeToDelete.getParent().setRight(nodeToDelete.getRight());
                 nodeToDelete.getRight().setParent(nodeToDelete.getParent());
                 return nodeToDelete.getParent();
@@ -220,7 +220,7 @@ public class AVLTree {
                 return null;
             }
         } else if(nodeToDelete.getLeft().isRealNode()){ // unary with left child
-            if(nodeToDelete.getParent().isRealNode()) {
+            if(nodeToDelete.getParent()!= null) {
                 nodeToDelete.getParent().setLeft(nodeToDelete.getLeft());
                 nodeToDelete.getLeft().setParent(nodeToDelete.getParent());
                 return nodeToDelete.getParent();
@@ -243,7 +243,7 @@ public class AVLTree {
         IAVLNode succ = successor(nodeToDelete);
         IAVLNode startRebalanceNode = removeUnaryOrLeaf(succ);
         succ.setHeight(nodeToDelete.getHeight());
-        if(nodeToDelete.getParent().isRealNode()) {
+        if(nodeToDelete.getParent() != null) {
             if(nodeToDelete.getParent().getRight() == nodeToDelete) {
                 nodeToDelete.getParent().setRight(succ);
                 succ.setParent(nodeToDelete.getParent());
@@ -251,6 +251,9 @@ public class AVLTree {
                 nodeToDelete.getParent().setLeft(succ);
                 succ.setParent(nodeToDelete.getParent());
             }
+        } else {
+            this.root = succ;
+            succ.setParent(null);
         }
         if(nodeToDelete.getRight().isRealNode()) {
             nodeToDelete.getRight().setParent(succ);
