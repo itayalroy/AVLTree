@@ -11,8 +11,16 @@ public class AVLTree {
     private IAVLNode root;
     private int size;
 
-
-
+    public static void main(String[] args) {
+        AVLTree tree = new AVLTree();
+        tree.insert(6,null);
+        tree.insert(3,null);
+        tree.insert(10,null);
+        tree.insert(8,null);
+        tree.insert(13,null);
+        tree.delete(10);
+        System.out.println(tree.root.getLeft().getHeight());
+    }
 
     public AVLTree() {
         this.size = 0;
@@ -207,31 +215,45 @@ public class AVLTree {
      * returns -1 if an item with key k was not found in the tree.
      */
 
-    public void removeUnaryOrLeaf(IAVLNode nodeToDelete) {
+    /*
+    @pre nodeToDelete is not a binary node
+    @post $ret is where we want to start rebalancing, if null then we deleted the root- no need to rebalance
+     */
+    public IAVLNode removeUnaryOrLeaf(IAVLNode nodeToDelete) {
         if(nodeToDelete.getRight().isRealNode()) { // unary with right child
             if(nodeToDelete.getParent().isRealNode()) {
                 nodeToDelete.getParent().setRight(nodeToDelete.getRight());
                 nodeToDelete.getRight().setParent(nodeToDelete.getParent());
+                return nodeToDelete.getParent();
             } else {
                 this.root = nodeToDelete.getRight();
                 this.root.setParent(null);
+                return null;
             }
         } else if(nodeToDelete.getLeft().isRealNode()){ // unary with left child
             if(nodeToDelete.getParent().isRealNode()) {
                 nodeToDelete.getParent().setLeft(nodeToDelete.getLeft());
                 nodeToDelete.getLeft().setParent(nodeToDelete.getParent());
+                return nodeToDelete.getParent();
             } else {
                 this.root = nodeToDelete.getLeft();
                 this.root.setParent(null);
+                return null;
             }
         } else { //leaf
+            IAVLNode continueNode = nodeToDelete.getParent();
             nodeToDelete.setParent(null);
+            return continueNode;
         }
     }
-
-    public void removeBinary(IAVLNode nodeToDelete) {
+    /*
+    @pre nodeToDelete is a binary node
+    @post $ret is where we want to start rebalancing, if null then we deleted the root- no need to rebalance
+     */
+    public IAVLNode removeBinary(IAVLNode nodeToDelete) {
         IAVLNode succ = successor(nodeToDelete);
-        removeUnaryOrLeaf(succ);
+        IAVLNode startRebalanceNode = removeUnaryOrLeaf(succ);
+        succ.setHeight(nodeToDelete.getHeight());
         if(nodeToDelete.getParent().isRealNode()) {
             if(nodeToDelete.getParent().getRight() == nodeToDelete) {
                 nodeToDelete.getParent().setRight(succ);
@@ -249,17 +271,18 @@ public class AVLTree {
             nodeToDelete.getLeft().setParent(succ);
             succ.setLeft(nodeToDelete.getLeft());
         }
+        return startRebalanceNode;
     }
     public int delete(int k) {
         IAVLNode nodeToDelete = searchNode(k);
         if(nodeToDelete == null) return -1;
         int stepCount = 0;
+        IAVLNode startRebalanceNode;
             if(nodeToDelete.getRight().isRealNode() && nodeToDelete.getLeft().isRealNode()) { // if binary
-                removeBinary(nodeToDelete);
+                startRebalanceNode = removeBinary(nodeToDelete);
             } else { // unary or leaf
-                removeUnaryOrLeaf(nodeToDelete);
+                startRebalanceNode = removeUnaryOrLeaf(nodeToDelete);
             }
-
         return stepCount;
     }
 
