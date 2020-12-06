@@ -337,7 +337,6 @@ public class AVLTree {
             startRebalanceNode = removeUnaryOrLeaf(nodeToDelete);
         }
         while (isFixNeeded(startRebalanceNode)) {
-            TreePrinter.printNode(this.getRoot());
             if (isDemoteNeeded(startRebalanceNode)) {
                 stepCount += demote(startRebalanceNode);
                 startRebalanceNode = startRebalanceNode.getParent();
