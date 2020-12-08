@@ -350,10 +350,6 @@ public class AVLTree {
                 startRebalanceNode = startRebalanceNode.getParent().getParent();
             }
         }
-        if(size == 0) {
-            this.min = null;
-            this.max = null;
-        }
         return stepCount;
     }
 
