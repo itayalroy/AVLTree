@@ -683,7 +683,9 @@ public class AVLTree {
     }
 
     private int getTreeRank() {
-        return this.root.getHeight();
+        if(this.size > 0) {
+            return this.root.getHeight();
+        } else return -1;
     }
 
     /**
