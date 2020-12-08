@@ -19,6 +19,9 @@ public class AVLTree {
 
     public AVLTree() {
         this.size = 0;
+        this.min = null;
+        this.max = null;
+        this.root = null;
     }
 
     /**
@@ -268,6 +271,13 @@ public class AVLTree {
         }
     }
 
+    public void setToEmptyTree() {
+        this.size = 0;
+        this.min = null;
+        this.max = null;
+        this.root = null;
+    }
+
     public boolean isLeftChild(IAVLNode node) {
         if(node.getParent() != null) {
             if(node.getParent().getLeft() == node) return true;
@@ -312,12 +322,18 @@ public class AVLTree {
         if (nodeToDelete == null) return -1;
         int stepCount = 0;
         this.size--;
-        if(this.min.getKey() == k) {
+        if(size == 0) {
+            setToEmptyTree();
+            return 0;
+        }
+        if (this.min.getKey() == k) {
             this.min = successor(this.min);
         }
-        if(this.max.getKey() == k) {
+        if (this.max.getKey() == k) {
             this.max = predecessor(this.max);
         }
+
+
         IAVLNode startRebalanceNode;
         if (nodeToDelete.getRight().isRealNode() && nodeToDelete.getLeft().isRealNode()) { // if binary
             startRebalanceNode = removeBinary(nodeToDelete);
@@ -333,6 +349,10 @@ public class AVLTree {
                 stepCount += deletionRotate(startRebalanceNode);
                 startRebalanceNode = startRebalanceNode.getParent().getParent();
             }
+        }
+        if(size == 0) {
+            this.min = null;
+            this.max = null;
         }
         return stepCount;
     }
@@ -697,7 +717,7 @@ public class AVLTree {
 
         public int getHeight(); // Returns the height of the node (-1 for virtual nodes)
 
-        public void fixHeight();
+        public void fixHeight(); // sets this's height to max(left.height,right.height) + 1
     }
 
     /**
