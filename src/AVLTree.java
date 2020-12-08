@@ -50,28 +50,32 @@ public class AVLTree {
      * otherwise, returns null
      */
     public String search(int k) {
-        IAVLNode temp = this.root;
-        while (temp.isRealNode()) {
-            if (temp.getKey() < k) {
-                temp = temp.getRight();
-            } else if (temp.getKey() > k) {
-                temp = temp.getLeft();
-            } else {
-                return temp.getValue();
+        if(this.size > 0) {
+            IAVLNode temp = this.root;
+            while (temp.isRealNode()) {
+                if (temp.getKey() < k) {
+                    temp = temp.getRight();
+                } else if (temp.getKey() > k) {
+                    temp = temp.getLeft();
+                } else {
+                    return temp.getValue();
+                }
             }
         }
         return null;
     }
 
     public IAVLNode searchNode(int k) {
-        IAVLNode temp = this.root;
-        while (temp.isRealNode()) {
-            if (temp.getKey() < k) {
-                temp = temp.getRight();
-            } else if (temp.getKey() > k) {
-                temp = temp.getLeft();
-            } else {
-                return temp;
+        if(this.size > 0) {
+            IAVLNode temp = this.root;
+            while (temp.isRealNode()) {
+                if (temp.getKey() < k) {
+                    temp = temp.getRight();
+                } else if (temp.getKey() > k) {
+                    temp = temp.getLeft();
+                } else {
+                    return temp;
+                }
             }
         }
         return null;
@@ -700,6 +704,8 @@ public class AVLTree {
         public void setHeight(int height); // sets the height of the node
 
         public int getHeight(); // Returns the height of the node (-1 for virtual nodes)
+
+        public void fixHeight();
     }
 
     /**
@@ -734,6 +740,11 @@ public class AVLTree {
             this.right = virNode;
             this.height = 0;
             this.parent = null;
+        }
+
+        @Override
+        public void fixHeight() {
+            this.height = Integer.max(this.left.getHeight(),this.right.getHeight()) + 1;
         }
 
         public int getLeftChildRankDiff() {
