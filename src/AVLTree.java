@@ -535,7 +535,10 @@ public class AVLTree {
         IAVLNode xNode = searchNode(x);
         AVLTree smallerTree = new AVLTree();
         AVLTree biggerTree = new AVLTree();
-        // need to update min/max of both
+        IAVLNode minOfSmaller = getMinAndMaxForSplit(xNode)[0];
+        IAVLNode maxOfBigger = getMinAndMaxForSplit(xNode)[1];
+        IAVLNode maxOfSmaller = predecessor(xNode);
+        IAVLNode minOfBigger = successor(xNode);
         if(xNode.getLeft().isRealNode())
             smallerTree =  seperateSubTree(xNode.getLeft());
         if(xNode.getRight().isRealNode())
@@ -552,10 +555,27 @@ public class AVLTree {
             }
             xNode = xNode.getParent();
         }
+        smallerTree.min = minOfSmaller;
+        smallerTree.max = maxOfSmaller;
+        biggerTree.min = minOfBigger;
+        biggerTree.max = maxOfBigger;
         AVLTree[] res = {smallerTree, biggerTree};
         return res;
     }
 
+    public IAVLNode[] getMinAndMaxForSplit(IAVLNode xNode) {
+        IAVLNode maxOfBigger;
+        IAVLNode minOfSmaller;
+        if(xNode!= this.max)
+            maxOfBigger = this.max;
+        else
+            maxOfBigger = predecessor(this.max);
+        if(xNode!= this.min)
+            minOfSmaller = this.min;
+        else
+            minOfSmaller = successor(this.min);
+        return new IAVLNode[]{minOfSmaller, maxOfBigger};
+    }
     public AVLTree seperateSubTree(IAVLNode node) {
         AVLTree res = new AVLTree();
         res.root = node;

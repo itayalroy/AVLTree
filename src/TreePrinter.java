@@ -91,16 +91,17 @@ public class TreePrinter {
         public static void main(String[] args) {
             AVLTree tree = new AVLTree();
             for(int i=0; i<100; i++) {
-                tree.insert(i, null);
+                tree.insert(i, "" + i);
             }
             printNode(tree.getRoot());
-            AVLTree[] res = tree.split(63);
+            AVLTree[] res = tree.split(99);
             printNode(res[0].getRoot());
             printNode(res[1].getRoot());
             System.out.println(res[0].getRoot());
             System.out.println(res[1].getRoot());
             System.out.println(Arrays.toString(res[0].keysToArray()));
             System.out.println(Arrays.toString(res[1].keysToArray()));
+            System.out.println(res[1].min());
         }
     }
 
