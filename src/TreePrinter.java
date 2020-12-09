@@ -89,6 +89,21 @@ public class TreePrinter {
 
 
         public static void main(String[] args) {
+            AVLTree tree = new AVLTree();
+            tree.insert(18, null);
+            tree.insert(19, null);
+
+            printNode(tree.getRoot());
+            System.out.println(tree.getRoot().getHeight());
+            System.out.println(tree.size());
+            AVLTree tree2 = new AVLTree();
+            tree2.insert(16, null);
+
+            tree.join(new AVLTree.AVLNode(17, null), tree2);
+
+            printNode(tree.getRoot());
+            System.out.println(tree.getRoot().getHeight());
+            System.out.println(tree.size());
 
             int[] values4 = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
