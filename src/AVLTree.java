@@ -142,6 +142,7 @@ public class AVLTree {
 
     public int promote(IAVLNode node) {
         node.setHeight(node.getHeight() + 1);
+        node.resetSize();
         return 1;
     }
 
@@ -186,7 +187,9 @@ public class AVLTree {
         tempParent.setRight(node.getLeft());
         node.setLeft(tempParent);
         tempParent.fixHeight();
+        tempParent.resetSize();
         node.fixHeight();
+        node.resetSize();
     }
 
     private void rightRotation(IAVLNode node) {
@@ -199,7 +202,9 @@ public class AVLTree {
         tempParent.setLeft(node.getRight());
         node.setRight(tempParent);
         tempParent.fixHeight();
+        tempParent.resetSize();
         node.fixHeight();
+        node.resetSize();
     }
 
     private void updateRootForRotation(IAVLNode node, IAVLNode tempParent) {
@@ -248,14 +253,18 @@ public class AVLTree {
         } else { // unary or leaf
             startRebalanceNode = removeUnaryOrLeaf(nodeToDelete);
         }
-        while (isFixNeeded(startRebalanceNode)) {
-            if (isDemoteNeeded(startRebalanceNode)) {
-                stepCount += demote(startRebalanceNode);
+        while (startRebalanceNode != null) {
+            if(isFixNeeded(startRebalanceNode)) {
+                if (isDemoteNeeded(startRebalanceNode)) {
+                    stepCount += demote(startRebalanceNode);
+                    startRebalanceNode = startRebalanceNode.getParent();
+                } else {
+                    stepCount += deletionRotate(startRebalanceNode);
+                    startRebalanceNode = startRebalanceNode.getParent().getParent();
+                }
+            } else {
+                startRebalanceNode.resetSize();
                 startRebalanceNode = startRebalanceNode.getParent();
-            }
-            else {
-                stepCount += deletionRotate(startRebalanceNode);
-                startRebalanceNode = startRebalanceNode.getParent().getParent();
             }
         }
         return stepCount;
@@ -313,9 +322,7 @@ public class AVLTree {
         this.root = null;
     }
 
-    public void startSizeFixerFrom(IAVLNode node, int sizeDiff) {
 
-    }
 
     /*
     @pre nodeToDelete is a binary node
@@ -383,6 +390,7 @@ public class AVLTree {
 
     public int demote(IAVLNode node) {
         node.setHeight(node.getHeight() - 1);
+        node.resetSize();
         return 1;
     }
 
@@ -463,7 +471,7 @@ public class AVLTree {
      * postcondition: none
      */
     public int size() {
-        return this.size; // to be replaced by student code
+        return this.size;
     }
 
     /**
@@ -529,24 +537,35 @@ public class AVLTree {
         IAVLNode xNode = searchNode(x);
         AVLTree smallerTree = new AVLTree();
         AVLTree biggerTree = new AVLTree();
+        // need to update min/max of both
         if(xNode.getLeft().isRealNode())
-            // add left subtree to smallertree
+            smallerTree =  seperateSubTree(xNode.getLeft());
         if(xNode.getRight().isRealNode())
-            // add right subtree to smallertree
+            biggerTree = seperateSubTree(xNode.getRight());
+        IAVLNode nextNode = xNode.getParent();
         while(xNode.getParent() != null) {
-            xNode = xNode.getParent();
+            IAVLNode nodeForJoin = new AVLNode(xNode.getParent().getKey(), xNode.getParent().getValue());
             if(!xNode.isLeftChild()) {
-                // join smallerTree with xNode and xNode's left subtree
+                // join smallerTree with xNode and his left subtree
+                smallerTree.join(nodeForJoin, seperateSubTree(xNode.getParent().getLeft()));
             } else {
-                // join biggerTree with xNode and xNode's right subtree
+                // join biggerTree with xNode and his right subtree
+                biggerTree.join(nodeForJoin,seperateSubTree(xNode.getParent().getRight()));
             }
+            xNode = xNode.getParent();
         }
         AVLTree[] res = {smallerTree, biggerTree};
         return res;
     }
 
-    public AVLTree seperateSubTree() {
-        return null;
+    public AVLTree seperateSubTree(IAVLNode node) {
+        AVLTree res = new AVLTree();
+        res.root = node;
+        node.setParent(null);
+        res.size = node.getSize();
+        res.min = node; // not a true val
+        res.max = node; // not a true val
+        return res;
     }
 
     /**
@@ -617,6 +636,7 @@ public class AVLTree {
         joinNodeInPlace(x, higher.getRoot(), lower.getRoot(), treesRank + 1, null, true);
         lower.size = lower.size + higher.size + 1;
         lower.root = x;
+        x.resetSize();
     }
 
     /**
@@ -648,12 +668,18 @@ public class AVLTree {
      */
     private int rebalanceFromNode(IAVLNode node){
         int count = 0;
-        while (isFixNeeded(node.getParent())) {
+        node.resetSize();
+        while (node.getParent() != null) {
             node = node.getParent();
-            if (isPromotionNeeded(node)) {
-                count = count + promote(node);
+            if(isFixNeeded(node)) {
+                if (isPromotionNeeded(node)) {
+                    count = count + promote(node);
+                } else {
+                    count = count + rotateInsertion(node);
+                    node = node.getParent();
+                }
             } else {
-                count = count + rotateInsertion(node);
+                node.resetSize();
             }
         }
         return count;
@@ -671,6 +697,7 @@ public class AVLTree {
         x.setHeight(rank);
         rightChild.setParent(x);
         leftChild.setParent(x);
+        x.resetSize();
     }
 
     /**

@@ -89,37 +89,14 @@ public class TreePrinter {
 
 
         public static void main(String[] args) {
-
-            int[] values4 = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-
-            int actualOperations = 0;
-            int avlOperations = 0;
-            AVLTree avlTree = new AVLTree();
-            for (int aValues4: values4){
-                avlTree.insert(aValues4, ""+aValues4);
-            }
-            int n = 0;
-            for (int aValues4 : values4) {
-                avlOperations += avlTree.delete(values4[aValues4 - 1]);
-                if (avlTree.size() > 0) {
-                    // while avlTree is not empty, checking the min & max values
-                    if ((!avlTree.max().equals(avlTree.max())) ||
-                            (!avlTree.min().equals(avlTree.min()))) {
-                        n++;
-                    }
-                } else {
-                    // if all items were deleted from avlTree, check if RBTree is empty as well
-                    if (!avlTree.empty()) {
-                        n++;
-                    }
-                }
-            }
-            for (int val : values4) {
-                // checking that all the values that were supposed to be deleted are not in the RBTree
-                if (!(avlTree.search(val) == null)) {
-                    n++;
-                }
-            }
+            AVLTree tree = new AVLTree();
+            tree.insert(18,null);
+            tree.insert(19,null);
+            AVLTree.IAVLNode x = new AVLTree.AVLNode(16,null);
+            AVLTree tree2 = new AVLTree();
+            tree2.insert(15, null);
+            tree.join(x,tree2);
+            printNode(tree.getRoot());
 
         }
     }
