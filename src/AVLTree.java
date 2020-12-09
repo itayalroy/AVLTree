@@ -16,7 +16,6 @@ public class AVLTree {
     private int size;
 
 
-
     public AVLTree() {
         this.size = 0;
         this.min = null;
@@ -53,7 +52,7 @@ public class AVLTree {
      * otherwise, returns null
      */
     public String search(int k) {
-        if(this.size > 0) {
+        if (this.size > 0) {
             IAVLNode temp = this.root;
             while (temp.isRealNode()) {
                 if (temp.getKey() < k) {
@@ -69,7 +68,7 @@ public class AVLTree {
     }
 
     public IAVLNode searchNode(int k) {
-        if(this.size > 0) {
+        if (this.size > 0) {
             IAVLNode temp = this.root;
             while (temp.isRealNode()) {
                 if (temp.getKey() < k) {
@@ -165,6 +164,7 @@ public class AVLTree {
             }
         }
     }
+
     private void leftRightRotation(IAVLNode node) {
         leftRotation(node);
         rightRotation(node);
@@ -360,28 +360,26 @@ public class AVLTree {
 
 
     public boolean isDemoteNeeded(IAVLNode node) {
-        if(node.getHeight() - node.getRight().getHeight() == 2 && node.getHeight() - node.getLeft().getHeight() == 2) {
+        if (node.getHeight() - node.getRight().getHeight() == 2 && node.getHeight() - node.getLeft().getHeight() == 2) {
             return true;
         }
         return false;
     }
 
     public int deletionRotate(IAVLNode node) {
-        if(node.getHeight() - node.getLeft().getHeight() == 3) { // node is 3-1
+        if (node.getHeight() - node.getLeft().getHeight() == 3) { // node is 3-1
             if (node.getRight().getHeight() - node.getRight().getRight().getHeight() == 1) {
                 leftRotation(node.getRight());
                 return 1;
-            }
-            else {
+            } else {
                 rightLeftRotation(node.getRight().getLeft());
                 return 2;
             }
         } else { // node is a 1-3
-            if(node.getLeft().getHeight() - node.getLeft().getLeft().getHeight() == 1) {
+            if (node.getLeft().getHeight() - node.getLeft().getLeft().getHeight() == 1) {
                 rightRotation(node.getLeft());
                 return 1;
-            }
-            else {
+            } else {
                 leftRightRotation(node.getLeft().getRight());
                 return 2;
             }
@@ -402,7 +400,7 @@ public class AVLTree {
      * or null if the tree is empty
      */
     public String min() {
-        if(size > 0) {
+        if (size > 0) {
             return this.min.getValue();
         } else
             return null;
@@ -415,7 +413,7 @@ public class AVLTree {
      * or null if the tree is empty
      */
     public String max() {
-        if(size > 0) {
+        if (size > 0) {
             return this.max.getValue();
         } else
             return null;
@@ -429,7 +427,7 @@ public class AVLTree {
      */
     public int[] keysToArray() {
         int[] arr = new int[this.size];
-        if(size > 0) {
+        if (size > 0) {
             infoToArrayRec(this.root, null, arr, new int[]{0}, true);
         }
         return arr;
@@ -589,10 +587,10 @@ public class AVLTree {
         IAVLNode max = higher.max;
         IAVLNode min = lower.min;
         AVLTree joinedTree;
-        if (lower.getTreeRank() > higher.getTreeRank()) {
+        if (lower.getTreeRank() > higher.getTreeRank() + 1) {
             joinLowerDeeper(x, lower, higher);
             joinedTree = lower;
-        } else if (lower.getTreeRank() < higher.getTreeRank()) {
+        } else if (lower.getTreeRank() + 1 < higher.getTreeRank()) {
             joinHigherDeeper(x, lower, higher);
             joinedTree = higher;
         } else {
@@ -612,13 +610,13 @@ public class AVLTree {
      * precondition: keys(x,higher) > keys(lower) && lower.getTreeRank() > higher.getTreeRank() > -1.
      * postcondition: None.
      */
-    private static void joinLowerDeeper(IAVLNode x, AVLTree lower, AVLTree higher){
+    private static void joinLowerDeeper(IAVLNode x, AVLTree lower, AVLTree higher) {
         int higherRank = higher.getTreeRank();
         IAVLNode tempNode = lower.getRoot();
-        while(tempNode.getHeight() > higherRank){
+        while (tempNode.getHeight() > higherRank && tempNode.getRight().isRealNode()) {
             tempNode = tempNode.getRight();
         }
-        joinNodeInPlace(x, higher.getRoot(), tempNode, higherRank + 1, tempNode.getParent(), true);
+        joinNodeInPlace(x, higher.getRoot(), tempNode, Math.max(tempNode.getHeight(), higherRank) + +1, tempNode.getParent(), true);
         lower.size = lower.size + higher.size + 1;
         lower.rebalanceFromNode(x);
     }
@@ -630,10 +628,8 @@ public class AVLTree {
      * precondition: keys(x,higher) > keys(lower) && lower.getTreeRank() > higher.getTreeRank() > -1.
      * postcondition: None.
      */
-    private static void joinEqualInDepth(IAVLNode x, AVLTree lower, AVLTree higher){
-
-        int treesRank = higher.getTreeRank();
-        joinNodeInPlace(x, higher.getRoot(), lower.getRoot(), treesRank + 1, null, true);
+    private static void joinEqualInDepth(IAVLNode x, AVLTree lower, AVLTree higher) {
+        joinNodeInPlace(x, higher.getRoot(), lower.getRoot(), Math.max(higher.getTreeRank(), lower.getTreeRank()) + 1, null, true);
         lower.size = lower.size + higher.size + 1;
         lower.root = x;
         x.resetSize();
@@ -647,13 +643,13 @@ public class AVLTree {
      * precondition: keys(x,higher) > keys(lower) && higher.getTreeRank() > lower.getTreeRank() < -1.
      * postcondition: None.
      */
-    private static void joinHigherDeeper(IAVLNode x, AVLTree lower, AVLTree higher){
+    private static void joinHigherDeeper(IAVLNode x, AVLTree lower, AVLTree higher) {
         int lowerRank = lower.getTreeRank();
         IAVLNode tempNode = higher.getRoot();
-        while(tempNode.getHeight() > lowerRank){
+        while (tempNode.getHeight() > lowerRank && tempNode.getLeft().isRealNode()) {
             tempNode = tempNode.getLeft();
         }
-        joinNodeInPlace(x, tempNode, lower.getRoot(), lowerRank+1, tempNode.getParent(), false);
+        joinNodeInPlace(x, tempNode, lower.getRoot(), Math.max(tempNode.getHeight(), lowerRank) + 1, tempNode.getParent(), false);
         higher.size = lower.size + higher.size + 1;
         higher.rebalanceFromNode(x);
     }
@@ -666,7 +662,7 @@ public class AVLTree {
      * precondition: search(x.getKey()) != null
      * postcondition: None.
      */
-    private int rebalanceFromNode(IAVLNode node){
+    private int rebalanceFromNode(IAVLNode node) {
         int count = 0;
         node.resetSize();
         while (node.getParent() != null) {
@@ -685,13 +681,13 @@ public class AVLTree {
         return count;
     }
 
-    private static void joinNodeInPlace(IAVLNode x, IAVLNode rightChild, IAVLNode leftChild, int rank, IAVLNode parent, boolean isRightChild){
+    private static void joinNodeInPlace(IAVLNode x, IAVLNode rightChild, IAVLNode leftChild, int rank, IAVLNode parent, boolean isRightChild) {
         x.setRight(rightChild);
         x.setLeft(leftChild);
         x.setParent(parent);
-        if(parent != null && isRightChild){
+        if (parent != null && isRightChild) {
             x.getParent().setRight(x);
-        } else if(parent != null){
+        } else if (parent != null) {
             x.getParent().setLeft(x);
         }
         x.setHeight(rank);
@@ -728,7 +724,7 @@ public class AVLTree {
     }
 
     private int getTreeRank() {
-        if(this.size > 0) {
+        if (this.size > 0) {
             return this.root.getHeight();
         } else return -1;
     }
@@ -816,7 +812,7 @@ public class AVLTree {
         }
         @Override
         public void fixHeight() {
-            this.height = Integer.max(this.left.getHeight(),this.right.getHeight()) + 1;
+            this.height = Integer.max(this.left.getHeight(), this.right.getHeight()) + 1;
         }
 
         public int getKey() {
