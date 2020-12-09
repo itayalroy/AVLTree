@@ -561,8 +561,8 @@ public class AVLTree {
         res.root = node;
         node.setParent(null);
         res.size = node.getSize();
-        res.min = node; // not a true val
-        res.max = node; // not a true val
+        res.min = node; // not a true val, will be updated when split finishes
+        res.max = node; // not a true val, will be updated when split finishes
         return res;
     }
 

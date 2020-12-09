@@ -90,14 +90,17 @@ public class TreePrinter {
 
         public static void main(String[] args) {
             AVLTree tree = new AVLTree();
-            tree.insert(18,null);
-            tree.insert(19,null);
-            AVLTree.IAVLNode x = new AVLTree.AVLNode(16,null);
-            AVLTree tree2 = new AVLTree();
-            tree2.insert(15, null);
-            tree.join(x,tree2);
+            for(int i=0; i<100; i++) {
+                tree.insert(i, null);
+            }
             printNode(tree.getRoot());
-
+            AVLTree[] res = tree.split(63);
+            printNode(res[0].getRoot());
+            printNode(res[1].getRoot());
+            System.out.println(res[0].getRoot());
+            System.out.println(res[1].getRoot());
+            System.out.println(Arrays.toString(res[0].keysToArray()));
+            System.out.println(Arrays.toString(res[1].keysToArray()));
         }
     }
 
