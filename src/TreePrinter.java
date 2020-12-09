@@ -94,7 +94,7 @@ public class TreePrinter {
                 tree.insert(i, "" + i);
             }
             printNode(tree.getRoot());
-            AVLTree[] res = tree.split(99);
+            AVLTree[] res = tree.split(63);
             printNode(res[0].getRoot());
             printNode(res[1].getRoot());
             System.out.println(res[0].getRoot());
