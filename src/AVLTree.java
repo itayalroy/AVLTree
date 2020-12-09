@@ -537,10 +537,10 @@ public class AVLTree {
         IAVLNode max = higher.max;
         IAVLNode min = lower.min;
         AVLTree joinedTree;
-        if (lower.getTreeRank() > higher.getTreeRank()) {
+        if (lower.getTreeRank() > higher.getTreeRank() + 1) {
             joinLowerDeeper(x, lower, higher);
             joinedTree = lower;
-        } else if (lower.getTreeRank() < higher.getTreeRank()) {
+        } else if (lower.getTreeRank() + 1 < higher.getTreeRank()) {
             joinHigherDeeper(x, lower, higher);
             joinedTree = higher;
         } else {
@@ -563,10 +563,10 @@ public class AVLTree {
     private static void joinLowerDeeper(IAVLNode x, AVLTree lower, AVLTree higher){
         int higherRank = higher.getTreeRank();
         IAVLNode tempNode = lower.getRoot();
-        while(tempNode.getHeight() > higherRank){
+        while(tempNode.getHeight() > higherRank && tempNode.getRight().isRealNode()){
             tempNode = tempNode.getRight();
         }
-        joinNodeInPlace(x, higher.getRoot(), tempNode, higherRank + 1, tempNode.getParent(), true);
+        joinNodeInPlace(x, higher.getRoot(), tempNode, Math.max(tempNode.getHeight(), higherRank)+ + 1, tempNode.getParent(), true);
         lower.size = lower.size + higher.size + 1;
         lower.rebalanceFromNode(x);
     }
@@ -579,9 +579,7 @@ public class AVLTree {
      * postcondition: None.
      */
     private static void joinEqualInDepth(IAVLNode x, AVLTree lower, AVLTree higher){
-
-        int treesRank = higher.getTreeRank();
-        joinNodeInPlace(x, higher.getRoot(), lower.getRoot(), treesRank + 1, null, true);
+        joinNodeInPlace(x, higher.getRoot(), lower.getRoot(), Math.max(higher.getTreeRank(), lower.getTreeRank()) + 1, null, true);
         lower.size = lower.size + higher.size + 1;
         lower.root = x;
     }
@@ -597,10 +595,10 @@ public class AVLTree {
     private static void joinHigherDeeper(IAVLNode x, AVLTree lower, AVLTree higher){
         int lowerRank = lower.getTreeRank();
         IAVLNode tempNode = higher.getRoot();
-        while(tempNode.getHeight() > lowerRank){
+        while(tempNode.getHeight() > lowerRank && tempNode.getLeft().isRealNode()){
             tempNode = tempNode.getLeft();
         }
-        joinNodeInPlace(x, tempNode, lower.getRoot(), lowerRank+1, tempNode.getParent(), false);
+        joinNodeInPlace(x, tempNode, lower.getRoot(), Math.max(tempNode.getHeight(), lowerRank)+1, tempNode.getParent(), false);
         higher.size = lower.size + higher.size + 1;
         higher.rebalanceFromNode(x);
     }
