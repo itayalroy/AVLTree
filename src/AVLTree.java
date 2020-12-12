@@ -481,10 +481,12 @@ public class AVLTree {
      * complexity: O(logn)
      */
     public IAVLNode removeBinary(IAVLNode nodeToDelete) {
+        // getting the node's successor and removing it from its current location in the tree
         IAVLNode succ = successor(nodeToDelete); // complexity: O(logn)
         boolean isLeftChild = nodeToDelete.isLeftChild();
         IAVLNode nodeToContinue = removeUnaryOrLeaf(succ);
         succ.setHeight(nodeToDelete.getHeight());
+        // setting the successor in the place of nodeToDelete
         if (nodeToDelete.getParent() != null) {
             if (!isLeftChild) {
                 nodeToDelete.getParent().setRight(succ);
@@ -497,10 +499,12 @@ public class AVLTree {
             this.root = succ;
             succ.setParent(null);
         }
+        // setting the successor right sub-tree to be the nodeToDelete right sub-tree
         if (nodeToDelete.getRight().isRealNode()) {
             nodeToDelete.getRight().setParent(succ);
             succ.setRight(nodeToDelete.getRight());
         }
+        // setting the successor left sub-tree to be the nodeToDelete left sub-tree
         if (nodeToDelete.getLeft().isRealNode()) {
             nodeToDelete.getLeft().setParent(succ);
             succ.setLeft(nodeToDelete.getLeft());
@@ -856,17 +860,20 @@ public class AVLTree {
      */
     public int join(IAVLNode x, AVLTree t) {
         int complexity = Math.abs(getTreeRank() - t.getTreeRank()) + 1;
+        // dealing with a special case - atleast one of the trees is empty.
         if (t.empty() || this.empty()) {
             AVLTree notEmptyTree = getNotEmptyTree(t, this);
             notEmptyTree.insert(x.getKey(), x.getValue());
             setTreeAs(notEmptyTree);
             return complexity;
         }
+        // getting the tree's by their keys values.
         AVLTree lower = orderTreesByRootVal(t, this)[0];
         AVLTree higher = orderTreesByRootVal(t, this)[1];
         IAVLNode max = higher.max;
         IAVLNode min = lower.min;
         AVLTree joinedTree;
+        // joining the trees and the node based on the rank and values
         if (lower.getTreeRank() > higher.getTreeRank() + 1) {
             joinLowerDeeper(x, lower, higher);
             joinedTree = lower;
@@ -877,8 +884,10 @@ public class AVLTree {
             joinEqualInDepth(x, lower, higher);
             joinedTree = lower;
         }
+        // updating the min and max
         joinedTree.max = max;
         joinedTree.min = min;
+        // setting this instance as the the joined tree
         setTreeAs(joinedTree);
         return complexity;
     }
