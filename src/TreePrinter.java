@@ -90,18 +90,12 @@ public class TreePrinter {
 
         public static void main(String[] args) {
             AVLTree tree = new AVLTree();
-            for(int i=0; i<100; i++) {
+            for(int i=0; i<10000; i++) {
                 tree.insert(i, "" + i);
             }
-            printNode(tree.getRoot());
-            AVLTree[] res = tree.split(63);
-            printNode(res[0].getRoot());
-            printNode(res[1].getRoot());
-            System.out.println(res[0].getRoot());
-            System.out.println(res[1].getRoot());
+            AVLTree[] res = tree.split(3232);
             System.out.println(Arrays.toString(res[0].keysToArray()));
             System.out.println(Arrays.toString(res[1].keysToArray()));
-            System.out.println(res[1].min());
         }
     }
 

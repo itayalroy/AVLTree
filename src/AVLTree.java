@@ -536,7 +536,7 @@ public class AVLTree {
             return curr;
         } else {
             IAVLNode curr = node;
-            while (node.getParent().getRight() == node) {
+            while (curr.getParent().getRight() == curr) {
                 curr = curr.getParent();
             }
             return curr.getParent();
@@ -556,10 +556,10 @@ public class AVLTree {
                 return curr;
             } else {
                 IAVLNode curr = node;
-                while (node.getParent().getLeft() == node) {
-                    curr = node.getParent();
+                while (curr.getParent().getLeft() == curr) {
+                    curr = curr.getParent();
                 }
-                return node.getParent();
+                return curr.getParent();
             }
         }
     }
@@ -649,7 +649,6 @@ public class AVLTree {
         if (t.empty() || this.empty()) {
             AVLTree notEmptyTree = getNotEmptyTree(t, this);
             notEmptyTree.insert(x.getKey(), x.getValue());
-            notEmptyTree.size = notEmptyTree.size() + 1;
             setTreeAs(notEmptyTree);
             return complexity;
         }
