@@ -90,42 +90,18 @@ public class TreePrinter {
 
         public static void main(String[] args) {
             AVLTree tree = new AVLTree();
-            tree.insert(14, "14");
-            tree.insert(23, "23");
-            tree.insert(3, "3");
-            tree.insert(41, "41");
-            tree.insert(19, "19");
-            tree.insert(45, "45");
-
+            for(int i=0; i<100; i++) {
+                tree.insert(i, "" + i);
+            }
             printNode(tree.getRoot());
-            System.out.println(tree.getRoot().getHeight());
-            System.out.println(tree.size());
-            AVLTree tree2 = new AVLTree();
-            tree2.insert(60, "60");
-            tree2.insert(91, "91");
-            tree2.insert(72, "72");
-            tree2.insert(67, "67");
-            tree2.insert(51, "51");
-            tree2.insert(59, "59");
-            tree2.insert(162,"162");
-            tree2.insert(171,"171");
-
-            printNode(tree2.getRoot());
-            System.out.println(tree2.getRoot().getHeight());
-            System.out.println(tree2.size());
-
-            tree.join(new AVLTree.AVLNode(50, "50"), tree2);
-
-            printNode(tree.getRoot());
-            System.out.println(tree.size());
-            System.out.println(tree.getRoot().getHeight());
-            tree.delete(60);
-
-            printNode(tree.getRoot());
-            System.out.println(tree.size());
-            System.out.println(tree.getRoot().getHeight());
-            System.out.println(tree.getRoot().getRight().getRight().getLeft().getHeight());
-
+            AVLTree[] res = tree.split(63);
+            printNode(res[0].getRoot());
+            printNode(res[1].getRoot());
+            System.out.println(res[0].getRoot());
+            System.out.println(res[1].getRoot());
+            System.out.println(Arrays.toString(res[0].keysToArray()));
+            System.out.println(Arrays.toString(res[1].keysToArray()));
+            System.out.println(res[1].min());
         }
     }
 
