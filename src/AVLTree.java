@@ -49,6 +49,7 @@ public class AVLTree {
 
     /**
      * To be deleted - was writtne for test and measurement purposes only.
+     *
      * @param k
      * @return
      */
@@ -71,11 +72,12 @@ public class AVLTree {
 
     /**
      * To be deleted - was written for measurement purposes only.
+     *
      * @param k
      * @param value
      * @return
      */
-    public int testInsert(int k, String value){
+    public int testInsert(int k, String value) {
         if (this.root == null) {
             this.root = new AVLNode(k, value);
             this.min = this.root;
@@ -218,8 +220,8 @@ public class AVLTree {
 
 
     /**
-     *  determines if the node we're currently at needs a balance operation or not
-     *  complexity: O(1)
+     * determines if the node we're currently at needs a balance operation or not
+     * complexity: O(1)
      */
     private boolean isFixNeeded(IAVLNode node) {
         if (node == null) {
@@ -754,6 +756,7 @@ public class AVLTree {
 
     /**
      * To be deletes - was written for the test purposes.
+     *
      * @param
      * @return
      */
@@ -782,16 +785,16 @@ public class AVLTree {
             if (!xNode.isLeftChild()) {
                 // join smallerTree with xNode and his left subtree
                 currCost = smallerTree.join(nodeForJoin, seperateSubTree(xNode.getParent().getLeft()));
-                if(currCost > maxCost)
+                if (currCost > maxCost)
                     maxCost = currCost;
-                avgCost = (avgCost*numOfJoins + currCost) / (numOfJoins+1);
+                avgCost = (avgCost * numOfJoins + currCost) / (numOfJoins + 1);
                 numOfJoins++;
             } else {
                 // join biggerTree with xNode and his right subtree
                 currCost = biggerTree.join(nodeForJoin, seperateSubTree(xNode.getParent().getRight()));
-                if(currCost > maxCost)
+                if (currCost > maxCost)
                     maxCost = currCost;
-                currCost = (avgCost*numOfJoins + currCost) / (numOfJoins+1);
+                currCost = (avgCost * numOfJoins + currCost) / (numOfJoins + 1);
                 numOfJoins++;
             }
             xNode = xNode.getParent();
@@ -827,11 +830,11 @@ public class AVLTree {
     }
 
     /**
-     *  seperates a subtree in which the root is the node we recieve,
-     *  return a sub-tree made from the node and it's left and right sub-trees.
-     *  min/max values of the returning subtree are not correct and will be updated once split finishes
-     *  precondition: search(node) != null
-     *  complexity: O(1)
+     * seperates a subtree in which the root is the node we recieve,
+     * return a sub-tree made from the node and it's left and right sub-trees.
+     * min/max values of the returning subtree are not correct and will be updated once split finishes
+     * precondition: search(node) != null
+     * complexity: O(1)
      */
     private AVLTree seperateSubTree(IAVLNode node) {
         AVLTree res = new AVLTree();
@@ -965,13 +968,14 @@ public class AVLTree {
     /**
      * Gets all the relevant parameters for the join, and joins the node with the relevant
      * sub-trees and connects all the relevant data.
-     * @param x - the node to which we join everything
-     * @param rightChild - x's right child
-     * @param leftChild - x's left child
-     * @param rank - x's rank
-     * @param parent - x's parent
+     *
+     * @param x            - the node to which we join everything
+     * @param rightChild   - x's right child
+     * @param leftChild    - x's left child
+     * @param rank         - x's rank
+     * @param parent       - x's parent
      * @param isRightChild - is x his parent's right child
-     * complexity: O(1)
+     *                     complexity: O(1)
      */
     private static void joinNodeInPlace(IAVLNode x, IAVLNode rightChild, IAVLNode leftChild, int rank, IAVLNode parent, boolean isRightChild) {
         x.setRight(rightChild);
