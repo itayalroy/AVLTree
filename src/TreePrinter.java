@@ -88,14 +88,19 @@ public class TreePrinter {
     }
 
 
-        public static void main(String[] args) {
-            AVLTree tree = new AVLTree();
-            for(int i=0; i<10000; i++) {
-                tree.insert(i, "" + i);
-            }
-            AVLTree[] res = tree.split(3232);
-            System.out.println(Arrays.toString(res[0].keysToArray()));
-            System.out.println(Arrays.toString(res[1].keysToArray()));
+    public static void main(String[] args) {
+        AVLTree tree = new AVLTree();
+        int[] arr = {4, 14, 1, 2, 8, 19, 13, 3, 16, 5, 17, 6, 12, 11, 20, 18, 10, 15, 9, 7};
+        int res = 0;
+        int resdel = 0;
+        for (int i = 0; i < arr.length; i++) {
+            res += tree.insert(arr[i], "0");
         }
+        for (int i = 0; i < arr.length; i++) {
+            resdel += tree.delete(arr[i]);
+        }
+        System.out.println(res);
+        System.out.println(resdel);
     }
 
+}
