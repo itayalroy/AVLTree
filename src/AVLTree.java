@@ -1,6 +1,8 @@
 import sun.reflect.generics.tree.Tree;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * AVLTree
@@ -21,6 +23,38 @@ public class AVLTree {
         this.min = null;
         this.max = null;
         this.root = null;
+    }
+
+    public static void main(String[] args) {
+        AVLTree tree = new AVLTree();
+        List<Integer> l = new ArrayList<Integer>();
+        for (int i = 1; i < 10000; i++) {
+            l.add(i);
+        }
+        for (int k: l) {
+            tree.insert(k, "hello");
+        }
+        for (int i = 9000; i < 9025; i++) {
+            System.out.print(tree.delete(i));
+        }
+        System.out.println("");
+        for (int i = 0; i < 25; i++) {
+            System.out.print(tree.delete(tree.getRoot().getKey()));
+        }
+    }
+
+    /**
+     * test if a given AVL tree is legit
+     * this is a method for test purposes
+     */
+    public boolean isALegitAVL(AVLTree tree) {
+        return isALegitAVLrec(tree.getRoot());
+    }
+    public boolean isALegitAVLrec(IAVLNode node) {
+        if(!node.isRealNode()) {
+            return true;
+        }
+        return isALegitAVLrec(node.getLeft()) && isALegitAVLrec(node.getRight()) && !isFixNeeded(node);
     }
 
     /**
@@ -48,7 +82,7 @@ public class AVLTree {
     }
 
     /**
-     * To be deleted - was writtne for test and measurement purposes only.
+     * To be deleted - was written for test and measurement purposes only.
      *
      * @param k
      * @return
@@ -263,20 +297,16 @@ public class AVLTree {
         if (node.getHeight() - node.getLeft().getHeight() == 0) {
             // is right rotation needed or is a left-right rotation
             if (node.getLeft().getHeight() - node.getLeft().getLeft().getHeight() == 1) {
-                rightRotation(node.getLeft());
-                return 1;
+                return 1 + rightRotation(node.getLeft());
             } else {
-                leftRightRotation(node.getLeft().getRight());
-                return 2;
+                return 2 + leftRightRotation(node.getLeft().getRight());
             }
         } else {
             // is a left rotation needed or is a right-left rotation
             if (node.getRight().getHeight() - node.getRight().getRight().getHeight() == 1) {
-                leftRotation(node.getRight());
-                return 1;
+                return 1 + leftRotation(node.getRight());
             } else {
-                rightLeftRotation(node.getRight().getLeft());
-                return 2;
+                return 2 + rightLeftRotation(node.getRight().getLeft());
             }
         }
     }
@@ -287,10 +317,11 @@ public class AVLTree {
      * second between node and node.getParent() AFTER THE FIRST ROTATION
      * complexity: O(1)
      */
-    private void leftRightRotation(IAVLNode node) {
-        leftRotation(node);
-        rightRotation(node);
-
+    private int leftRightRotation(IAVLNode node) {
+        int sum = 0;
+        sum += leftRotation(node);
+        sum += rightRotation(node);
+        return sum;
     }
 
     /**
@@ -299,47 +330,53 @@ public class AVLTree {
      * second between node and node.getParent() AFTER THE FIRST ROTATION
      * complexity: O(1)
      */
-    private void rightLeftRotation(IAVLNode node) {
-        rightRotation(node);
-        leftRotation(node);
+    private int rightLeftRotation(IAVLNode node) {
+        int sum = 0;
+        sum += rightRotation(node);
+        sum += leftRotation(node);
+        return sum;
     }
 
     /**
      * makes a left rotation between node and node.getParent()
      * complexity: O(1)
      */
-    private void leftRotation(IAVLNode node) {
+    private int leftRotation(IAVLNode node) {
+        int sum = 0;
         IAVLNode tempParent = node.getParent();
         if (tempParent == null)
-            return;
+            return 0;
         updateRootForRotation(node, tempParent);
         tempParent.setParent(node);
         node.getLeft().setParent(tempParent);
         tempParent.setRight(node.getLeft());
         node.setLeft(tempParent);
-        tempParent.fixHeight();
+        sum += tempParent.fixHeight();
         tempParent.resetSize();
-        node.fixHeight();
+        sum += node.fixHeight();
         node.resetSize();
+        return sum;
     }
 
     /**
      * makes a right rotation between node and node.getParent()
      * complexity: O(1)
      */
-    private void rightRotation(IAVLNode node) {
+    private int rightRotation(IAVLNode node) {
+        int sum = 0;
         IAVLNode tempParent = node.getParent();
         if (tempParent == null)
-            return;
+            return 0;
         updateRootForRotation(node, tempParent);
         tempParent.setParent(node);
         node.getRight().setParent(tempParent);
         tempParent.setLeft(node.getRight());
         node.setRight(tempParent);
-        tempParent.fixHeight();
+        sum += tempParent.fixHeight();
         tempParent.resetSize();
-        node.fixHeight();
+        sum += node.fixHeight();
         node.resetSize();
+        return sum;
     }
 
     /**
@@ -534,19 +571,15 @@ public class AVLTree {
     private int deletionRotate(IAVLNode node) {
         if (node.getHeight() - node.getLeft().getHeight() == 3) { // node is 3-1
             if (node.getRight().getHeight() - node.getRight().getRight().getHeight() == 1) {
-                leftRotation(node.getRight());
-                return 1;
+                return 1 + leftRotation(node.getRight());
             } else {
-                rightLeftRotation(node.getRight().getLeft());
-                return 2;
+                return 2 + rightLeftRotation(node.getRight().getLeft());
             }
         } else { // node is a 1-3
             if (node.getLeft().getHeight() - node.getLeft().getLeft().getHeight() == 1) {
-                rightRotation(node.getLeft());
-                return 1;
+                return 1 +  rightRotation(node.getLeft());
             } else {
-                leftRightRotation(node.getLeft().getRight());
-                return 2;
+                return 2 + leftRightRotation(node.getLeft().getRight());
             }
         }
     }
@@ -1067,7 +1100,7 @@ public class AVLTree {
 
         public int getHeight(); // Returns the height of the node (-1 for virtual nodes)
 
-        public void fixHeight(); // sets this's height to max(left.height,right.height) + 1
+        public int fixHeight(); // sets this's height to max(left.height,right.height) + 1
 
         public boolean isLeftChild(); // t iff this is a left child of his parent
 
@@ -1126,8 +1159,11 @@ public class AVLTree {
         }
 
         @Override
-        public void fixHeight() {
+        public int fixHeight() {
+            int prevHeight = this.getHeight();
             this.height = Integer.max(this.left.getHeight(), this.right.getHeight()) + 1;
+            int currHeight = this.getHeight();
+            return Math.abs(currHeight - prevHeight);
         }
 
         public int getKey() {
