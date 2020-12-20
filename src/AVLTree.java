@@ -25,37 +25,8 @@ public class AVLTree {
         this.root = null;
     }
 
-    public static void main(String[] args) {
-        AVLTree tree = new AVLTree();
-        List<Integer> l = new ArrayList<Integer>();
-        for (int i = 1; i < 10000; i++) {
-            l.add(i);
-        }
-        for (int k: l) {
-            tree.insert(k, "hello");
-        }
-        for (int i = 9000; i < 9025; i++) {
-            System.out.print(tree.delete(i));
-        }
-        System.out.println("");
-        for (int i = 0; i < 25; i++) {
-            System.out.print(tree.delete(tree.getRoot().getKey()));
-        }
-    }
 
-    /**
-     * test if a given AVL tree is legit
-     * this is a method for test purposes
-     */
-    public boolean isALegitAVL(AVLTree tree) {
-        return isALegitAVLrec(tree.getRoot());
-    }
-    public boolean isALegitAVLrec(IAVLNode node) {
-        if(!node.isRealNode()) {
-            return true;
-        }
-        return isALegitAVLrec(node.getLeft()) && isALegitAVLrec(node.getRight()) && !isFixNeeded(node);
-    }
+
 
     /**
      * public boolean empty()
@@ -81,77 +52,6 @@ public class AVLTree {
         this.root = t.root;
     }
 
-    /**
-     * To be deleted - was written for test and measurement purposes only.
-     *
-     * @param k
-     * @return
-     */
-    private IAVLNode testSearchInsertLocation(int k) {
-        IAVLNode curr = this.max;
-        while (curr.getKey() > k) {
-            curr = curr.getParent();
-        }
-        IAVLNode temp = curr;
-        while (curr.isRealNode()) {
-            temp = curr;
-            if (curr.getKey() > k) {
-                curr = curr.getLeft();
-            } else {
-                curr = curr.getRight();
-            }
-        }
-        return temp;
-    }
-
-    /**
-     * To be deleted - was written for measurement purposes only.
-     *
-     * @param k
-     * @param value
-     * @return
-     */
-    public int testInsert(int k, String value) {
-        if (this.root == null) {
-            this.root = new AVLNode(k, value);
-            this.min = this.root;
-            this.max = this.root;
-            this.size++;
-            return 0;
-        }
-        IAVLNode curr = this.max;
-        int searchCost = 0;
-        while (curr.getKey() > k && curr.getParent() != null) {
-            searchCost++;
-            curr = curr.getParent();
-        }
-        IAVLNode tempPar = curr;
-        while (curr.isRealNode()) {
-            searchCost++;
-            tempPar = curr;
-            if (curr.getKey() > k) {
-                curr = curr.getLeft();
-            } else {
-                curr = curr.getRight();
-            }
-        }
-        // inserting the node at the place we found earlier
-        IAVLNode newNode = new AVLNode(k, value);
-        if (tempPar.getKey() > k)
-            tempPar.setLeft(newNode);
-        else
-            tempPar.setRight(newNode);
-        newNode.setParent(tempPar);
-        // updating min/max if necessary
-        if (newNode.getKey() > this.max.getKey())
-            this.max = newNode;
-        if (newNode.getKey() < this.min.getKey())
-            this.min = newNode;
-        this.size++;
-        // starting rebalance process from new node up
-        rebalanceFromNode(newNode);
-        return searchCost;
-    }
 
     /**
      * public String search(int k)
@@ -791,59 +691,7 @@ public class AVLTree {
         return res;
     }
 
-    /**
-     * To be deletes - was written for the test purposes.
-     *
-     * @param
-     * @return
-     */
-    public double[] testSplit(int x) {
-        IAVLNode xNode = searchNode(x);
-        AVLTree smallerTree = new AVLTree();
-        AVLTree biggerTree = new AVLTree();
-        // computing min/max values for both the trees we will be returning
-        IAVLNode minOfSmaller = getMinAndMaxForSplit(xNode)[0];
-        IAVLNode maxOfBigger = getMinAndMaxForSplit(xNode)[1];
-        IAVLNode maxOfSmaller = predecessor(xNode);
-        IAVLNode minOfBigger = successor(xNode);
-        // adding xNodes' left and right subtrees to smaller/bigger accordingly
-        if (xNode.getLeft().isRealNode())
-            smallerTree = seperateSubTree(xNode.getLeft());
-        if (xNode.getRight().isRealNode())
-            biggerTree = seperateSubTree(xNode.getRight());
-        IAVLNode nextNode = xNode.getParent();
-        // going up until the root, joining all subtrees into smaller/bigger as learned in class
-        int numOfJoins = 0;
-        double maxCost = 0;
-        double avgCost = 0;
-        double currCost = 0;
-        while (xNode.getParent() != null) {
-            IAVLNode nodeForJoin = new AVLNode(xNode.getParent().getKey(), xNode.getParent().getValue());
-            if (!xNode.isLeftChild()) {
-                // join smallerTree with xNode and his left subtree
-                currCost = smallerTree.join(nodeForJoin, seperateSubTree(xNode.getParent().getLeft()));
-                if (currCost > maxCost)
-                    maxCost = currCost;
-                avgCost = (avgCost * numOfJoins + currCost) / (numOfJoins + 1);
-                numOfJoins++;
-            } else {
-                // join biggerTree with xNode and his right subtree
-                currCost = biggerTree.join(nodeForJoin, seperateSubTree(xNode.getParent().getRight()));
-                if (currCost > maxCost)
-                    maxCost = currCost;
-                currCost = (avgCost * numOfJoins + currCost) / (numOfJoins + 1);
-                numOfJoins++;
-            }
-            xNode = xNode.getParent();
-        }
-        // updating min/max values for res trees
-        smallerTree.min = minOfSmaller;
-        smallerTree.max = maxOfSmaller;
-        biggerTree.min = minOfBigger;
-        biggerTree.max = maxOfBigger;
-        AVLTree[] res = {smallerTree, biggerTree};
-        return new double[]{avgCost, maxCost};
-    }
+
 
     /**
      * Gets the tree's maximum and minimum - excluding xNode,
